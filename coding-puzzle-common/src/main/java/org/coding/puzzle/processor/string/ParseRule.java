@@ -1,15 +1,19 @@
 package org.coding.puzzle.processor.string;
 
 public abstract class ParseRule {
-    private final ParseRule intern;
+    private ParseRuleContext parseContext;
 
-    public ParseRule(ParseRule rule) {
-        intern = rule;
+    public abstract boolean validate();
+
+    public final void setParseContext(ParseRuleContext parseContext) {
+        this.parseContext = parseContext;
     }
 
-    public boolean checkValidity() {
-        return intern.checkValidity();
+    public final ParseRuleContext getParseContext() {
+        return parseContext;
     }
 
     public abstract char getRuleStartCondChar();
+
+    public abstract char getRuleEndCondChar();
 }

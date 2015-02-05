@@ -9,10 +9,18 @@ public class ParseRuleContext {
     }
 
     public char nextChar() {
+        return context[index++];
+    }
+
+    public char peekChar() {
         return context[index];
     }
 
+    public void consumeChar() {
+        index++;
+    }
+
     public boolean hasNextChar() {
-        return context.length > 0 && index >= 0 && index <= context.length - 1;
+        return context.length > 0 && index >= 0 && index < context.length;
     }
 }

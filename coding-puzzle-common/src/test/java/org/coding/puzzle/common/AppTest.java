@@ -1,38 +1,22 @@
 package org.coding.puzzle.common;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class AppTest {
+    @Test
+    public void testOpPrecedence() {
+        System.out.println(getOp1() && getOp2() || getOp3() && getOp1());
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    boolean getOp1() {
+        return false;
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    boolean getOp2() {
+        return false;
+    }
+
+    boolean getOp3() {
+        return true;
     }
 }
