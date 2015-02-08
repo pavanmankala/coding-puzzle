@@ -4,21 +4,21 @@ import org.coding.puzzle.processor.string.ParseRule;
 import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(value = ParseRule.class)
-public class ParenthesesParseRule extends BracketValidationRule {
-    private static BracesParseRule BRACES = new BracesParseRule();
+public class BracesParseRule extends BracketValidationRule {
+    private static SquareBracketParseRule SQ_BRACKETS = new SquareBracketParseRule();
 
     @Override
     public char getRuleStartChar() {
-        return '(';
+        return '{';
     }
 
     @Override
     public char getRuleEndChar() {
-        return ')';
+        return '}';
     }
 
     @Override
     protected boolean isValidChar(char character) {
-        return character == BRACES.getRuleStartChar();
+        return character == SQ_BRACKETS.getRuleStartChar();
     }
 }

@@ -1,9 +1,13 @@
 package org.coding.puzzle.processor.string;
 
 public abstract class ParseRule {
+    public static enum ParseRuleState {
+        VALID, INVALID, CLOSED
+    }
+
     private ParseRuleContext parseContext;
 
-    public abstract boolean validate();
+    public abstract ParseRuleState validate();
 
     public final void setParseContext(ParseRuleContext parseContext) {
         this.parseContext = parseContext;
@@ -13,7 +17,7 @@ public abstract class ParseRule {
         return parseContext;
     }
 
-    public abstract char getRuleStartCondChar();
+    public abstract char getRuleStartChar();
 
-    public abstract char getRuleEndCondChar();
+    public abstract char getRuleEndChar();
 }
