@@ -19,7 +19,7 @@ import org.coding.puzzle.processor.string.ParseRule.ParseResult;
  * @author p.mankala
  *
  */
-public class StringValidityProcessor implements Processor<String, Boolean, BooleanResult> {
+public class StringValidator implements Processor<String, Boolean, BooleanResult> {
     /**
      * Static values for PASS or FAIL condition
      */
@@ -47,7 +47,7 @@ public class StringValidityProcessor implements Processor<String, Boolean, Boole
      * @param beginRule
      *            beginning/recurring rule for this object
      */
-    public StringValidityProcessor(ParseRule beginRule) {
+    public StringValidator(ParseRule beginRule) {
         this.beginRule = beginRule;
         Map<Character, ParseRule> allRules = new HashMap<>();
 

@@ -54,20 +54,20 @@ public class TestStringProcessor {
     public void testStringProcessor() {
         final Pattern trimPattern = Pattern.compile("^\\s*(.*?)\\s*$");
         for (Entry<String, Boolean> e : inputResultMap.entrySet()) {
-            StringValidityProcessor processor;
+            StringValidator processor;
             Matcher m = trimPattern.matcher(e.getKey());
             String trimmedString = m.matches() ? m.group(1) : " ";
 
             switch (trimmedString.length() == 0 ? ' ' : trimmedString.charAt(0)) {
                 case '{':
-                    processor = new StringValidityProcessor(new BracesParseRule());
+                    processor = new StringValidator(new BracesParseRule());
                     break;
                 case '[':
-                    processor = new StringValidityProcessor(new SquareBracketParseRule());
+                    processor = new StringValidator(new SquareBracketParseRule());
                     break;
                 case '(':
                 default:
-                    processor = new StringValidityProcessor(new ParenthesesParseRule());
+                    processor = new StringValidator(new ParenthesesParseRule());
                     break;
             }
 

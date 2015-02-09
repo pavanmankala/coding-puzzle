@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 import org.coding.puzzle.CommandLineParser;
 import org.coding.puzzle.Result.BooleanResult;
-import org.coding.puzzle.processor.string.StringValidityProcessor;
+import org.coding.puzzle.processor.string.StringValidator;
 import org.coding.puzzle.processor.string.rules.ParenthesesParseRule;
 
 public class Part1 {
@@ -21,7 +21,7 @@ public class Part1 {
         }
 
         Integer noOfLines = (Integer) parser.getOption('n');
-        StringValidityProcessor processor = new StringValidityProcessor(new ParenthesesParseRule());
+        StringValidator processor = new StringValidator(new ParenthesesParseRule());
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         for (int i = 1; i <= noOfLines; i++) {
@@ -41,7 +41,7 @@ public class Part1 {
     }
 
     public static void main_1(String[] args) {
-        StringValidityProcessor processor = new StringValidityProcessor(new ParenthesesParseRule());
+        StringValidator processor = new StringValidator(new ParenthesesParseRule());
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int i = 1;
 
