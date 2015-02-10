@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.adtech.interview</groupId>
@@ -19,8 +20,8 @@
         <url>https://github.com/pavanmankala/coding-puzzle.git</url>
         <connection>scm:git:git://github.com/pavanmankala/coding-puzzle.git</connection>
         <developerConnection>scm:git:[fetch=]https://github.com/pavanmankala/coding-puzzle.git[push=]git@github.com:pavanmankala/coding-puzzle.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -142,6 +143,8 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <finalName>${project.name}</finalName>
                                     <descriptorRefs>
                                         <descriptorRef>jar-with-dependencies</descriptorRef>
                                     </descriptorRefs>
