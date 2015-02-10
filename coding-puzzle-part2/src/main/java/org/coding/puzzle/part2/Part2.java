@@ -1,5 +1,6 @@
 package org.coding.puzzle.part2;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -83,8 +84,8 @@ public class Part2 extends Part1 {
      *            cmd line args
      */
     @SuppressWarnings("unchecked")
-    public Part2(String[] args) {
-        super(args);
+    public Part2(String[] args, PrintStream out, PrintStream err) {
+        super(args, out, err);
         // create execution queues, as many as processors
         execQueues = new JobQueue[Runtime.getRuntime().availableProcessors()];
         reqShutdownLatch = new CountDownLatch(execQueues.length);
@@ -153,7 +154,7 @@ public class Part2 extends Part1 {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                System.exit(OTHER);
+                exit(OTHER);
             }
         }
     }
@@ -168,8 +169,8 @@ public class Part2 extends Part1 {
     }
 
     public static void main(String[] args) {
-        new Part2(args).execute();
-        System.exit(SUCCESS);
+        new Part2(args, System.out, System.err).execute();
+        exit(SUCCESS);
     }
 
     /**
@@ -207,7 +208,7 @@ public class Part2 extends Part1 {
             Pair<Integer, String> request = reqResultPair.getKey();
             BooleanResult result = reqResultPair.getValue();
 
-            System.out.println(request.getKey() + ":" + (result.resultValue() == true ? "True" : "False"));
+            out.println(request.getKey() + ":" + (result.resultValue() == true ? "True" : "False"));
             noOfResults++;
         }
     }

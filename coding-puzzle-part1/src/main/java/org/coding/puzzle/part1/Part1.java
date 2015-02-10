@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 import org.coding.puzzle.CommandLineParser;
 import org.coding.puzzle.Result.BooleanResult;
@@ -50,9 +51,12 @@ public class Part1 {
 
     protected final CommandLineParser cliParser;
     protected final StringValidator validator;
+    protected final PrintStream out, err;
 
-    public Part1(String[] args) {
-        cliParser = new CommandLineParser(System.err);
+    public Part1(String[] args, PrintStream out, PrintStream err) {
+        this.out = out;
+        this.err = err;
+        cliParser = new CommandLineParser(err);
 
         cliParser.addOption(NO_OF_LINES_ARG, false, true, "no-of-lines",
                 "<Integer> The number of lines to be checked for conformance", Integer.class);
@@ -65,8 +69,8 @@ public class Part1 {
             // e.printStackTrace();
         } finally {
             if (!parseSuccess) {
-                cliParser.printHelp(System.err);
-                System.exit(ERR_PARSE_ARGS);
+                cliParser.printHelp(err);
+                exit(ERR_PARSE_ARGS);
             }
         }
 
@@ -79,7 +83,7 @@ public class Part1 {
 
         // Prepare LineReader
         try (LineReader lr = cliParser.isOptionGiven(FILE_ARG) ? new FileLineReader(cliParser.getOptionValue(FILE_ARG,
-                File.class)) : new SysInReader()) {
+                File.class)) : new SysInReader(out)) {
             // Iterate over line reader
             for (int i = 0; unlimitedLines || i < noOfLines; i++) {
                 String line = null;
@@ -87,8 +91,8 @@ public class Part1 {
                 try {
                     line = lr.readLine();
                 } catch (IOException ioe) {
-                    System.out.println("IO error trying to read input string!");
-                    System.exit(ERR_READ_LINE);
+                    out.println("IO error trying to read input string!");
+                    exit(ERR_READ_LINE);
                 }
 
                 if (line == null) {
@@ -99,18 +103,18 @@ public class Part1 {
                 }
             }
         } catch (FileNotFoundException fnfe) {
-            System.err.println(fnfe.getMessage());
-            cliParser.printHelp(System.err);
-            System.exit(ERR_FILENOT_FND);
+            err.println(fnfe.getMessage());
+            cliParser.printHelp(err);
+            exit(ERR_FILENOT_FND);
         } catch (IOException ioe) {
-            System.err.println("Error while closing reader: " + ioe.getMessage());
-            System.exit(ERR_CLOSE_FILE);
+            err.println("Error while closing reader: " + ioe.getMessage());
+            exit(ERR_CLOSE_FILE);
         }
     }
 
     protected void evalLine(int lineNo, String line) {
         BooleanResult result = validator.process(line);
-        System.out.println(result.resultValue() == true ? "True" : "False");
+        out.println(result.resultValue() == true ? "True" : "False");
     }
 
     protected static interface LineReader extends Closeable {
@@ -137,13 +141,15 @@ public class Part1 {
 
     protected static class SysInReader implements LineReader {
         private final BufferedReader buffReader = new BufferedReader(new InputStreamReader(System.in));
+        private final PrintStream out;
 
-        public SysInReader() {
+        public SysInReader(PrintStream out) {
+            this.out = out;
         }
 
         @Override
         public String readLine() throws IOException {
-            System.out.print("Enter line: ");
+            out.print("Enter line: ");
             return buffReader.readLine();
         }
 
@@ -153,8 +159,12 @@ public class Part1 {
         }
     }
 
+    protected static void exit(int status) {
+        System.exit(status);
+    }
+
     public static void main(String[] args) {
-        new Part1(args).execute();
-        System.exit(SUCCESS);
+        new Part1(args, System.out, System.err).execute();
+        exit(SUCCESS);
     }
 }
