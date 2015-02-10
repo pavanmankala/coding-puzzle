@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.coding.puzzle.Processor;
 import org.coding.puzzle.Result.BooleanResult;
@@ -33,7 +31,8 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
      * The pattern object used to trim the input line
      */
     // String.trim() could be used, but it will not catch TAB characters
-    private final Pattern trimPattern = Pattern.compile("^\\s*([^\\s].*?)\\s*$");
+    // private final Pattern trimPattern =
+    // Pattern.compile("^\\s*([^\\s].*?)\\s*$");
     /**
      * All available {@link ParseRule}s in the class-path will be stored, using
      * {@link ServiceLoader}
@@ -71,77 +70,66 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
      */
     @Override
     public BooleanResult process(final String input) {
-        String[] lines = input.split("\\r?\\n");
+        if (input == null || input.isEmpty()) {
+            return FAIL;
+        }
+
         ParseResult state = ParseResult.INVALID;
+        // prepare context object
+        RuleContext ctx = new RuleContext(input.toCharArray());
 
-        // the passed-in input is a multi-line string, return FAIL
-        if (lines.length > 1) {
-            return FAIL;
+        // assign this context object to all rules; the rules chew context
+        // object
+        beginRule.setParseContext(ctx);
+        for (ParseRule rule : parseRules.values()) {
+            rule.setParseContext(ctx);
         }
 
-        String line = lines[0];
-        Matcher m = trimPattern.matcher(line);
+        // Rule stack
+        Stack<ParseRule> ruleStack = new Stack<>();
 
-        if (!m.matches()) {
-            return FAIL;
-        } else {
-            String trimmedString = m.group(1);
-            // prepare context object
-            RuleContext ctx = new RuleContext(trimmedString.toCharArray());
+        // loop until the context is entirely chewed or till one of the
+        // rules fails
+        while (ctx.hasNextChar()) {
+            state = ctx.nextChar() == beginRule.getRuleStartChar() ? ParseResult.VALID : ParseResult.INVALID;
 
-            // assign this context object to all rules; the rules chew context
-            // object
-            beginRule.setParseContext(ctx);
-            for (ParseRule rule : parseRules.values()) {
-                rule.setParseContext(ctx);
+            // if the string begin char is not conforming to beginRule
+            // return FAIL
+            if (state == ParseResult.INVALID) {
+                return FAIL;
             }
 
-            // Rule stack
-            Stack<ParseRule> ruleStack = new Stack<>();
+            ruleStack.push(beginRule);
 
-            // loop until the context is entirely chewed or till one of the
-            // rules fails
-            while (ctx.hasNextChar()) {
-                state = ctx.nextChar() == beginRule.getRuleStartChar() ? ParseResult.VALID : ParseResult.INVALID;
+            do {
+                ParseRule rule = ruleStack.peek();
+                state = rule.validate();
 
-                // if the string begin char is not conforming to beginRule
-                // return FAIL
-                if (state == ParseResult.INVALID) {
-                    return FAIL;
-                }
-
-                ruleStack.push(beginRule);
-
-                do {
-                    ParseRule rule = ruleStack.peek();
-                    state = rule.validate();
-
-                    switch (state) {
-                        case VALID:
-                            if (ctx.isNewRule()) {
-                                // Rule is valid, but we need to start new rule
-                                // aka Rule switch
-                                char newRuleBegin = ctx.getNewRuleChar();
-                                ParseRule newRule = parseRules.get(newRuleBegin);
-                                if (newRule != null) {
-                                    ruleStack.push(newRule);
-                                } else {
-                                    state = ParseResult.INVALID;
-                                }
+                switch (state) {
+                    case VALID:
+                        if (ctx.isNewRule()) {
+                            // Rule is valid, but we need to start new rule
+                            // aka Rule switch
+                            char newRuleBegin = ctx.getNewRuleChar();
+                            ParseRule newRule = parseRules.get(newRuleBegin);
+                            if (newRule != null) {
+                                ruleStack.push(newRule);
+                            } else {
+                                state = ParseResult.INVALID;
                             }
-                            break;
-                        case INVALID:
-                            // Rule is invalid
-                            return FAIL;
-                        case END:
-                            // Rules has ended properly
-                            ruleStack.pop();
-                            break;
-                    }
-                } while (!ruleStack.isEmpty() && state != ParseResult.INVALID);
-            }
-
-            return PASS;
+                        }
+                        break;
+                    case INVALID:
+                        // Rule is invalid
+                        return FAIL;
+                    case END:
+                        // Rules has ended properly
+                        ruleStack.pop();
+                        break;
+                }
+            } while (!ruleStack.isEmpty() && state != ParseResult.INVALID);
         }
+
+        return PASS;
     }
 }

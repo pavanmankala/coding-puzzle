@@ -3,8 +3,6 @@ package org.coding.puzzle.processor.string;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import junit.framework.Assert;
 
@@ -22,44 +20,44 @@ public class TestStringProcessor {
         inputResultMap.put("\t\t\t   \t\t\t\t", false);
         inputResultMap.put("\t\t\t  dd  \t\t\t\t", false);
         inputResultMap.put("\t\t\t   ff  \t\t\t\t\n\t", false);
-        inputResultMap.put("\t\t\t ({})  \t\t\t\t", true);
-        inputResultMap.put("\t\t  [] \t \t", true);
+        inputResultMap.put("\t\t\t ({})  \t\t\t\t", false);
+        inputResultMap.put("\t\t  [] \t \t", false);
         inputResultMap.put("()", true);
         inputResultMap.put("[]", true);
         inputResultMap.put("{}", true);
         inputResultMap.put("(()", false);
-        inputResultMap.put(" {}} ", false);
-        inputResultMap.put("({}) ", true);
-        inputResultMap.put("({)} ", false);
-        inputResultMap.put("({}) ", true);
-        inputResultMap.put(" ([])", false);
-        inputResultMap.put(" (()) ", false);
-        inputResultMap.put("{[]} ", true);
-        inputResultMap.put("{()} ", false);
+        inputResultMap.put("{}}", false);
+        inputResultMap.put("({})", true);
+        inputResultMap.put("({)}", false);
+        inputResultMap.put("({})", true);
+        inputResultMap.put("([])", false);
+        inputResultMap.put("(())", false);
+        inputResultMap.put("{[]}", true);
+        inputResultMap.put("{()}", false);
         inputResultMap.put("r {{}} ", false);
-        inputResultMap.put(" {{}} ", false);
+        inputResultMap.put("{{}}", false);
         inputResultMap.put("[()]", true);
-        inputResultMap.put(" [{}]", true);
+        inputResultMap.put("[{}]", true);
         inputResultMap.put("[[]]", true);
         inputResultMap.put("[[[]]]", true);
         inputResultMap.put("[([])]", false);
         inputResultMap.put("[()()]", true);
         inputResultMap.put("{[][()()]}", true);
-        inputResultMap.put("()() ", true);
-        inputResultMap.put("{[()({[]})]}{}{}{}{[()()]}{}{}{}{}{}{}{}{}{[[]({})()()()]} ", true);
-        inputResultMap.put("\t\t\t        ({[(){[]}[[{}()]()]]})({[[]{[[]()]}()]})({[[](){}][{}[]]"
-                + "[()][{}][][][][][][][(){}()[]][[][][][][][][[[[[[]]]]]]][][]}{}{}{[]}{[[]()]}{}{})({[]})", true);
+        inputResultMap.put("()()", true);
+        inputResultMap.put("{[()({[]})]}{}{}{}{[()()]}{}{}{}{}{}{}{}{}{[[]({})()()()]}", true);
+        inputResultMap
+                .put("({[(){[]}[[{}()]()]]})({[[]{[[]()]}()]})({[[](){}][{}[]]"
+                        + "[()][{}][][][][][][][(){}()[]][[][][][][][][[[[[[]]]]]]][][]}"
+                        + "{}{}{[]}{[[]()]}{}{})({[]})", true);
     }
 
     @Test
     public void testStringProcessor() {
-        final Pattern trimPattern = Pattern.compile("^\\s*(.*?)\\s*$");
         for (Entry<String, Boolean> e : inputResultMap.entrySet()) {
             StringValidator processor;
-            Matcher m = trimPattern.matcher(e.getKey());
-            String trimmedString = m.matches() ? m.group(1) : " ";
+            String arg = e.getKey();
 
-            switch (trimmedString.length() == 0 ? ' ' : trimmedString.charAt(0)) {
+            switch (arg.isEmpty() ? ' ' : arg.charAt(0)) {
                 case '{':
                     processor = new StringValidator(new BracesParseRule());
                     break;
@@ -72,13 +70,8 @@ public class TestStringProcessor {
                     break;
             }
 
-            try {
-                Assert.assertTrue("Error in processing string: " + e.getKey(), processor.process(e.getKey())
-                        .resultValue() == e.getValue());
-            } catch (RuntimeException ex) {
-                System.err.println("Error in processing string: " + e.getKey());
-                throw ex;
-            }
+            Assert.assertTrue("Error in processing string: " + e.getKey(),
+                    processor.process(e.getKey()).resultValue() == e.getValue());
         }
     }
 }
