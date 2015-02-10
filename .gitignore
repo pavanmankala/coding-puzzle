@@ -49,3 +49,5 @@ local.properties
 .project
 build/
 clipboard.txt
+pom.xml.tag
+pom.xml.next

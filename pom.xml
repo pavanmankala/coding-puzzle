@@ -16,6 +16,12 @@
         <module>coding-puzzle-common</module>
     </modules>
 
+    <scm>
+        <url>https://github.com/pavanmankala/coding-puzzle.git</url>
+        <connection>scm:git:git://github.com/pavanmankala/coding-puzzle.git</connection>
+        <developerConnection>scm:git:git@github.com:pavanmankala/coding-puzzle.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <metainf.services.version>1.5</metainf.services.version>
