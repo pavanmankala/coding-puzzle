@@ -13,6 +13,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <isRunnableBinary>true</isRunnableBinary>
+        <main.class>org.coding.puzzle.part1.Part1</main.class>
     </properties>
 
     <dependencies>
