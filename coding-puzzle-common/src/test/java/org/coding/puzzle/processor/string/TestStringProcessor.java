@@ -19,8 +19,9 @@ public class TestStringProcessor {
 
     @Before
     public void prepareInput() {
-        inputResultMap.put("\t\t\t   \t\t\t\t", true);
-        inputResultMap.put("\t\t\t ff  \t\t\t\t\n\t", false);
+        inputResultMap.put("\t\t\t   \t\t\t\t", false);
+        inputResultMap.put("\t\t\t  dd  \t\t\t\t", false);
+        inputResultMap.put("\t\t\t   ff  \t\t\t\t\n\t", false);
         inputResultMap.put("\t\t\t ({})  \t\t\t\t", true);
         inputResultMap.put("\t\t  [] \t \t", true);
         inputResultMap.put("()", true);

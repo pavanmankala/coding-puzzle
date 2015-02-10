@@ -20,7 +20,7 @@ public class CliTester {
             parser.printHelp(System.out);
         }
 
-        Assert.assertTrue("Hello123".equals(parser.getOption('m')));
-        Assert.assertTrue(new Integer(1005).equals(parser.getOption('n')));
+        Assert.assertTrue("Hello123".equals(parser.getOptionValue('m')));
+        Assert.assertTrue(new Integer(1005).equals(parser.getOptionValue('n')));
     }
 }

@@ -1,19 +1,24 @@
 package org.coding.puzzle;
 
+import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A quickly-written class to parse command line arguments
+ * A quickly-written class to parse command line arguments; Could be improved by
+ * adding default values for various options
  * 
  * @author p.mankala
  *
@@ -28,6 +33,7 @@ public class CommandLineParser {
             .compile("--(\\p{Alnum}[\\p{Alnum}-]+)(=(.*))?");
     private final Map<Option, Object> parsedArgs = new HashMap<>();
     private final PrintStream internalErrStream;
+    private final List<String> nonParameterizedArgs = new ArrayList<>();
 
     public CommandLineParser(PrintStream internalErrStream) {
         this.internalErrStream = internalErrStream;
@@ -96,6 +102,17 @@ public class CommandLineParser {
                 return errMessage;
             }
         };
+        Converter<File> fileConverter = new Converter<File>() {
+            @Override
+            public File convert(String argument) throws ConversionException {
+                return new File(argument);
+            }
+
+            @Override
+            public String errorMessage() {
+                return "";
+            }
+        };
 
         addConverter(String.class, stringConverter);
         addConverter(Integer.class, intConverter);
@@ -104,6 +121,7 @@ public class CommandLineParser {
         addConverter(long.class, longConverter);
         addConverter(Float.class, floatConverter);
         addConverter(float.class, floatConverter);
+        addConverter(File.class, fileConverter);
     }
 
     public <V> void addConverter(Class<V> clazz, Converter<V> converter) {
@@ -164,34 +182,50 @@ public class CommandLineParser {
 
         while (argsIter.hasNext()) {
             String arg = argsIter.next();
+
+            if (arg == null) {
+                continue;
+            } else {
+                arg = arg.trim();
+            }
+
             Matcher sam = shortArg.matcher(arg);
             Matcher lam = longArg.matcher(arg);
 
             if (sam.matches()) {
                 String shortArgStr = sam.group(1);
+
                 if (shortArgStr.length() == 1 && charOptions.containsKey(shortArgStr.charAt(0))) {
                     Option o = charOptions.get(shortArgStr.charAt(0));
 
-                    if (o.hasValue) {
-                        addParsedValue(arg, argsIter.hasNext() ? argsIter.next() : null, o);
-                    }
+                    parseArgValue(arg, (o.hasValue && argsIter.hasNext()) ? argsIter.next() : null, o);
+
                     continue;
                 }
             } else if (lam.matches()) {
                 String longArgStr = lam.group(1);
+
                 if (longNameOptions.containsKey(longArgStr)) {
                     Option o = longNameOptions.get(longArgStr);
 
                     if (o.hasValue) {
                         String value = lam.group(3);
                         value = value == null ? (argsIter.hasNext() ? argsIter.next() : null) : value;
-                        addParsedValue(arg, value, o);
+                        parseArgValue(arg, value, o);
+                    } else {
+                        parseArgValue(arg, null, o);
                     }
+
                     continue;
                 }
             }
 
-            internalErrStream.println("Invalid arg: " + arg);
+            if (arg.length() > 1 && arg.charAt(0) == '-') {
+                internalErrStream.println("Invalid arg: " + arg);
+            } else {
+                nonParameterizedArgs.add(arg);
+            }
+
             return false;
         }
 
@@ -261,7 +295,27 @@ public class CommandLineParser {
         ps.append(buff.toString());
     }
 
-    public Object getOption(char singleChar) {
+    public <T> T getOptionValue(char singleChar, Class<T> clazz) {
+        Object o = getOptionValue(singleChar);
+
+        if (o != null && clazz.isAssignableFrom(o.getClass())) {
+            return clazz.cast(o);
+        } else {
+            return null;
+        }
+    }
+
+    public <T> T getOptionValue(String longName, Class<T> clazz) {
+        Object o = getOptionValue(longName);
+
+        if (o != null && clazz.isAssignableFrom(o.getClass())) {
+            return clazz.cast(o);
+        } else {
+            return null;
+        }
+    }
+
+    public Object getOptionValue(char singleChar) {
         Option o = charOptions.get(singleChar);
 
         if (o == null) {
@@ -271,7 +325,7 @@ public class CommandLineParser {
         }
     }
 
-    public Object getOption(String longName) {
+    public Object getOptionValue(String longName) {
         Option o = longNameOptions.get(longName);
 
         if (o == null) {
@@ -281,27 +335,51 @@ public class CommandLineParser {
         }
     }
 
-    private void addParsedValue(String arg, String valueArg, Option opt) {
+    public boolean isOptionGiven(char singleChar) {
+        Option o = charOptions.get(singleChar);
+
+        if (o == null) {
+            return false;
+        } else {
+            return parsedArgs.get(o) != null ? true : false;
+        }
+    }
+
+    public boolean isOptionGiven(String longName) {
+        Option o = longNameOptions.get(longName);
+
+        if (o == null) {
+            return false;
+        } else {
+            return parsedArgs.get(o) != null ? true : false;
+        }
+    }
+
+    public List<String> getNonParameterizedArgs() {
+        return Collections.unmodifiableList(nonParameterizedArgs);
+    }
+
+    private void parseArgValue(String arg, String valueArg, Option opt) {
         Class<?> clazz = optionTypes.get(opt);
         Converter<?> converter = converters.get(clazz);
 
-        if (valueArg != null) {
-            if (parsedArgs.containsKey(opt)) {
-                String err = "argument " + arg + " already specified";
-                internalErrStream.println(err);
-                throw new RuntimeException(err);
-            }
-
-            try {
-                Object obj = converter.convert(valueArg);
-                parsedArgs.put(opt, obj);
-            } catch (ConversionException ce) {
-                String err = "Invalid type specified for option: " + arg + "; " + converter.errorMessage();
-                internalErrStream.println(err);
-                throw new RuntimeException(err);
-            }
-        } else {
+        if (opt.hasValue && valueArg == null) {
             String err = "No value specified to option: " + arg;
+            internalErrStream.println(err);
+            throw new RuntimeException(err);
+        }
+
+        if (parsedArgs.containsKey(opt)) {
+            String err = "argument " + arg + " already specified";
+            internalErrStream.println(err);
+            throw new RuntimeException(err);
+        }
+
+        try {
+            Object obj = opt.hasValue ? converter.convert(valueArg) : true;
+            parsedArgs.put(opt, obj);
+        } catch (ConversionException ce) {
+            String err = "Invalid type specified for option: " + arg + "; " + converter.errorMessage();
             internalErrStream.println(err);
             throw new RuntimeException(err);
         }

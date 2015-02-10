@@ -33,7 +33,7 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
      * The pattern object used to trim the input line
      */
     // String.trim() could be used, but it will not catch TAB characters
-    private final Pattern trimPattern = Pattern.compile("^\\s*(.*?)\\s*$");
+    private final Pattern trimPattern = Pattern.compile("^\\s*([^\\s].*?)\\s*$");
     /**
      * All available {@link ParseRule}s in the class-path will be stored, using
      * {@link ServiceLoader}
@@ -62,7 +62,7 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
      * Processes the <code>input</code> String and determines if it conforms to
      * the rules. This method processes a single line of text. If the string
      * contains is multi-line, the result will be a false {@link BooleanResult}.
-     * An empty line is treated as valid string.
+     * An empty line is treated as an invalid string.
      * 
      * @param input
      *            input {@link String} to be checked for conformance
