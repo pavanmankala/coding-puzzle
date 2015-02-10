@@ -7,7 +7,7 @@ import org.junit.Test;
 public class CliTester {
     @Test
     public void testCli() {
-        CommandLineParser parser = new CommandLineParser(System.err);
+        CommandLineParser parser = new CommandLineParser(System.out, System.err);
         parser.addOption('m', true, true, "myName-mine", "Listen! We of the Spear-Danes in the days of yore, of"
                 + " those clan-kings heard of their glory how those nobles performed"
                 + " courageous deeds Often Scyld, Scef's son, from enemy hosts from many"

@@ -32,11 +32,13 @@ public class CommandLineParser {
     private final Pattern shortArg = Pattern.compile("-(\\p{Alpha})"), longArg = Pattern
             .compile("--(\\p{Alnum}[\\p{Alnum}-]+)(=(.*))?");
     private final Map<Option, Object> parsedArgs = new HashMap<>();
-    private final PrintStream internalErrStream;
+    private final PrintStream internalErrStream, internalOutStream;
     private final List<String> nonParameterizedArgs = new ArrayList<>();
+    private final Option helpOption;
 
-    public CommandLineParser(PrintStream internalErrStream) {
+    public CommandLineParser(PrintStream internalOutStream, PrintStream internalErrStream) {
         this.internalErrStream = internalErrStream;
+        this.internalOutStream = internalOutStream;
         Converter<String> stringConverter = new Converter<String>() {
             @Override
             public String convert(String argument) throws ConversionException {
@@ -122,6 +124,8 @@ public class CommandLineParser {
         addConverter(Float.class, floatConverter);
         addConverter(float.class, floatConverter);
         addConverter(File.class, fileConverter);
+        addOption('h', false, false, "help", "Print this help");
+        helpOption = longNameOptions.get("help");
     }
 
     public <V> void addConverter(Class<V> clazz, Converter<V> converter) {
@@ -237,6 +241,10 @@ public class CommandLineParser {
             }
         }
 
+        if (parsedArgs.containsKey(helpOption)) {
+            printHelp(internalOutStream);
+        }
+
         return noerr;
     }
 
@@ -293,6 +301,10 @@ public class CommandLineParser {
         }
 
         ps.append(buff.toString());
+    }
+
+    public boolean isAskedForHelp() {
+        return parsedArgs.containsKey(helpOption);
     }
 
     public <T> T getOptionValue(char singleChar, Class<T> clazz) {

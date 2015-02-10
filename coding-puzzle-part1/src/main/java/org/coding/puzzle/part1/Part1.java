@@ -56,13 +56,14 @@ public class Part1 {
     public Part1(String[] args, PrintStream out, PrintStream err) {
         this.out = out;
         this.err = err;
-        cliParser = new CommandLineParser(err);
+        cliParser = new CommandLineParser(out, err);
 
         cliParser.addOption(NO_OF_LINES_ARG, false, true, "no-of-lines",
                 "<Integer> The number of lines to be checked for conformance", Integer.class);
         cliParser.addOption(FILE_ARG, false, true, "read-from-file", "<File> Read lines from file", File.class);
 
         boolean parseSuccess = false;
+
         try {
             parseSuccess = cliParser.parse(args);
         } catch (RuntimeException e) {
@@ -71,6 +72,8 @@ public class Part1 {
             if (!parseSuccess) {
                 cliParser.printHelp(err);
                 exit(ERR_PARSE_ARGS);
+            } else if (cliParser.isAskedForHelp()) {
+                exit(SUCCESS);
             }
         }
 
@@ -82,8 +85,7 @@ public class Part1 {
         Integer noOfLines = unlimitedLines ? -1 : cliParser.getOptionValue(NO_OF_LINES_ARG, Integer.class);
 
         // Prepare LineReader
-        try (LineReader lr = cliParser.isOptionGiven(FILE_ARG) ? new FileLineReader(cliParser.getOptionValue(FILE_ARG,
-                File.class)) : new SysInReader(out)) {
+        try (LineReader lr = createLineReader()) {
             // Iterate over line reader
             for (int i = 0; unlimitedLines || i < noOfLines; i++) {
                 String line = null;
@@ -104,12 +106,20 @@ public class Part1 {
             }
         } catch (FileNotFoundException fnfe) {
             err.println(fnfe.getMessage());
-            cliParser.printHelp(err);
             exit(ERR_FILENOT_FND);
         } catch (IOException ioe) {
             err.println("Error while closing reader: " + ioe.getMessage());
             exit(ERR_CLOSE_FILE);
+        } catch (Exception e) {
+            err.println("Error: " + e.getMessage());
+            exit(OTHER);
         }
+    }
+
+    protected LineReader createLineReader() throws FileNotFoundException, Exception {
+        LineReader lr = cliParser.isOptionGiven(FILE_ARG) ? new FileLineReader(cliParser.getOptionValue(FILE_ARG,
+                File.class)) : new SysInReader(out);
+        return lr;
     }
 
     protected void evalLine(int lineNo, String line) {
@@ -117,11 +127,11 @@ public class Part1 {
         out.println(result.resultValue() == true ? "True" : "False");
     }
 
-    protected static interface LineReader extends Closeable {
+    public static interface LineReader extends Closeable {
         public String readLine() throws IOException;
     }
 
-    protected static class FileLineReader implements LineReader {
+    public static class FileLineReader implements LineReader {
         private final BufferedReader buffReader;
 
         public FileLineReader(File file) throws FileNotFoundException {
@@ -139,7 +149,7 @@ public class Part1 {
         }
     }
 
-    protected static class SysInReader implements LineReader {
+    public static class SysInReader implements LineReader {
         private final BufferedReader buffReader = new BufferedReader(new InputStreamReader(System.in));
         private final PrintStream out;
 
