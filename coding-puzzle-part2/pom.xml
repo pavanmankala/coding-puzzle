@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.adtech.interview</groupId>
         <artifactId>coding-puzzle</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1</version>
     </parent>
 
     <artifactId>coding-puzzle-part2</artifactId>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.adtech.interview</groupId>
             <artifactId>coding-puzzle-part1</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
