@@ -17,9 +17,7 @@
     </modules>
 
     <scm>
-        <url>https://github.com/pavanmankala/coding-puzzle.git</url>
-        <connection>scm:git:git://github.com/pavanmankala/coding-puzzle.git</connection>
-        <developerConnection>scm:git:[fetch=]https://github.com/pavanmankala/coding-puzzle.git[push=]git@github.com:pavanmankala/coding-puzzle.git</developerConnection>
+        <developerConnection>scm:git:[fetch=]C:\Opt\coding-puzzle[push=]C:\Opt\coding-puzzle</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
