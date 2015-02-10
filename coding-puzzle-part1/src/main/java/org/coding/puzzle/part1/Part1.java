@@ -13,72 +13,111 @@ import org.coding.puzzle.Result.BooleanResult;
 import org.coding.puzzle.processor.string.StringValidator;
 import org.coding.puzzle.processor.string.rules.ParenthesesParseRule;
 
+/**
+ * The Part 1 of the coding puzzle processes the input lines from both cmd-line
+ * or from a file. This is not multi-threaded
+ * 
+ * <pre>
+ * HOW TO RUN:
+ * ===========
+ * java -jar &lt;jar_file_name_incl_path&gt; [-n &lt;numberOfLinesToBeRead&gt;] [-f &lt;file&gt;]
+ * </pre>
+ * 
+ * <ul>
+ * <li>If both the optional parameters are not given, the the program will run
+ * infinitely until it is terminated by Ctrl-C</li>
+ * 
+ * <li>If both the arguments are given and are valid, only the given number of
+ * lines (value of -n parameter) are processed from file</li>
+ * 
+ * <li>If only -n parameter is specified, then the given number of lines are
+ * processed from cmd-line (stdin)</li>
+ * 
+ * <li>If only -f parameter is specified, all the lines from the file are
+ * processed</li>
+ * </ul>
+ * 
+ * @author p.mankala
+ *
+ */
 public class Part1 {
-    private static final char NO_OF_LINES_ARG = 'n', FILE_ARG = 'f';
+    protected static final char NO_OF_LINES_ARG = 'n', FILE_ARG = 'f';
+    /**
+     * Error codes for this part 1 application
+     */
+    protected static final int SUCCESS = 0, ERR_PARSE_ARGS = 1, ERR_READ_LINE = 2, ERR_CLOSE_FILE = 3,
+            ERR_FILENOT_FND = 4, OTHER = 5;
 
-    public static void main(String[] args) {
-        CommandLineParser parser = new CommandLineParser(System.err);
+    protected final CommandLineParser cliParser;
+    protected final StringValidator validator;
 
-        parser.addOption(NO_OF_LINES_ARG, false, true, "no-of-lines",
+    public Part1(String[] args) {
+        cliParser = new CommandLineParser(System.err);
+
+        cliParser.addOption(NO_OF_LINES_ARG, false, true, "no-of-lines",
                 "<Integer> The number of lines to be checked for conformance", Integer.class);
-        parser.addOption(FILE_ARG, false, true, "read-from-file", "<File> Read lines from file", File.class);
+        cliParser.addOption(FILE_ARG, false, true, "read-from-file", "<File> Read lines from file", File.class);
 
         boolean parseSuccess = false;
         try {
-            parseSuccess = parser.parse(args);
+            parseSuccess = cliParser.parse(args);
         } catch (RuntimeException e) {
             // e.printStackTrace();
         } finally {
             if (!parseSuccess) {
-                parser.printHelp(System.err);
-                System.exit(1);
+                cliParser.printHelp(System.err);
+                System.exit(ERR_PARSE_ARGS);
             }
         }
 
-        StringValidator processor = new StringValidator(new ParenthesesParseRule());
+        validator = new StringValidator(new ParenthesesParseRule());
+    }
 
-        final boolean limitedLines = parser.isOptionGiven(NO_OF_LINES_ARG);
-        Integer noOfLines = limitedLines ? parser.getOptionValue(NO_OF_LINES_ARG, Integer.class) : Integer.MAX_VALUE;
+    public void execute() {
+        final boolean unlimitedLines = !cliParser.isOptionGiven(NO_OF_LINES_ARG);
+        Integer noOfLines = unlimitedLines ? -1 : cliParser.getOptionValue(NO_OF_LINES_ARG, Integer.class);
 
         // Prepare LineReader
-        try (LineReader lr = parser.isOptionGiven(FILE_ARG) ? new FileLineReader(parser.getOptionValue(FILE_ARG,
+        try (LineReader lr = cliParser.isOptionGiven(FILE_ARG) ? new FileLineReader(cliParser.getOptionValue(FILE_ARG,
                 File.class)) : new SysInReader()) {
             // Iterate over line reader
-            for (int i = 1; limitedLines && i <= noOfLines; i++) {
+            for (int i = 0; unlimitedLines || i < noOfLines; i++) {
                 String line = null;
 
                 try {
                     line = lr.readLine();
                 } catch (IOException ioe) {
                     System.out.println("IO error trying to read input string!");
-                    System.exit(1);
+                    System.exit(ERR_READ_LINE);
                 }
 
                 if (line == null) {
                     // EOF reached
                     break;
                 } else {
-                    BooleanResult result = processor.process(line);
-                    System.out.println(i + ":" + (result.resultValue() == true ? "True" : "False"));
+                    evalLine(i, line);
                 }
             }
         } catch (FileNotFoundException fnfe) {
             System.err.println(fnfe.getMessage());
-            parser.printHelp(System.err);
-            System.exit(1);
+            cliParser.printHelp(System.err);
+            System.exit(ERR_FILENOT_FND);
         } catch (IOException ioe) {
             System.err.println("Error while closing reader: " + ioe.getMessage());
-            System.exit(1);
+            System.exit(ERR_CLOSE_FILE);
         }
-
-        System.exit(0);
     }
 
-    static interface LineReader extends Closeable {
+    protected void evalLine(int lineNo, String line) {
+        BooleanResult result = validator.process(line);
+        System.out.println(result.resultValue() == true ? "True" : "False");
+    }
+
+    protected static interface LineReader extends Closeable {
         public String readLine() throws IOException;
     }
 
-    static class FileLineReader implements LineReader {
+    protected static class FileLineReader implements LineReader {
         private final BufferedReader buffReader;
 
         public FileLineReader(File file) throws FileNotFoundException {
@@ -96,8 +135,11 @@ public class Part1 {
         }
     }
 
-    static class SysInReader implements LineReader {
+    protected static class SysInReader implements LineReader {
         private final BufferedReader buffReader = new BufferedReader(new InputStreamReader(System.in));
+
+        public SysInReader() {
+        }
 
         @Override
         public String readLine() throws IOException {
@@ -109,5 +151,10 @@ public class Part1 {
         public void close() throws IOException {
             buffReader.close();
         }
+    }
+
+    public static void main(String[] args) {
+        new Part1(args).execute();
+        System.exit(SUCCESS);
     }
 }
