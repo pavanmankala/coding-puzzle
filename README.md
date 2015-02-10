@@ -50,8 +50,9 @@ input like this (no spaces):
 Usage for Part1
 ===============
 ```
-$> java -jar coding-puzzle-part1-1.0.jar \[-n \<numberOfLinesToBeRead>] [-f \<file>]
+$> java -jar coding-puzzle-part1-1.0.jar \[-n <numberOfLinesToBeRead>] [-f <file>]
 ```
+
 * If both the optional parameters are not given, the the program will run infinitely until it is terminated by Ctrl-C 
 * If both the arguments are given and are valid, only the given number of lines (value of -n parameter) are processed from file 
 * If only -n parameter is specified, then the given number of lines are processed from cmd-line (stdin) 
@@ -59,8 +60,9 @@ $> java -jar coding-puzzle-part1-1.0.jar \[-n \<numberOfLinesToBeRead>] [-f \<fi
 
 Usage for Part2
 ===============
+
 ```
-$> java -jar coding-puzzle-part2-1.0.jar \[-n \<numberOfLinesToBeRead>] [-f \<file>]
+$> java -jar coding-puzzle-part2-1.0.jar \[-n <numberOfLinesToBeRead>] [-f <file>]
 ```
 * If both the optional parameters are not given, the the program will run infinitely until it is terminated by Ctrl-C 
 * If both the arguments are given and are valid, only the given number of lines (value of -n parameter) are processed from file 
