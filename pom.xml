@@ -4,7 +4,7 @@
 
     <groupId>com.adtech.interview</groupId>
     <artifactId>coding-puzzle</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <name>coding-puzzle</name>
@@ -17,7 +17,7 @@
 
     <scm>
         <developerConnection>scm:git:[fetch=]C:\Opt\coding-puzzle[push=]C:\Opt\coding-puzzle</developerConnection>
-        <tag>HEAD</tag>
+        <tag>coding-puzzle-1.0</tag>
     </scm>
 
     <properties>
