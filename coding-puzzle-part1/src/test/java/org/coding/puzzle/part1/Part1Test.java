@@ -39,6 +39,8 @@ public class Part1Test {
         map.put("16:False", "({}{}[][[][({[]})][(){}]}{[]}{[]}{[]})");
         map.put("17:False", "({}}{}{[][][)][(){}]}{[]}{[]}{[]}{[]})");
         map.put("18:True", "({}{}{}{[]}{[]}{[]}{[]})");
+        map.put("19:False", ")(){}");
+        map.put("20:True", "(){}");
 
         new Part1(new String[] { "-n", "30" }, out, System.err) {
             @Override

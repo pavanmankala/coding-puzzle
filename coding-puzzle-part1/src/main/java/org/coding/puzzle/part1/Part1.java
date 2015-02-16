@@ -11,8 +11,9 @@ import java.io.PrintStream;
 
 import org.coding.puzzle.CommandLineParser;
 import org.coding.puzzle.Result.BooleanResult;
+import org.coding.puzzle.processor.string.ParseRule;
 import org.coding.puzzle.processor.string.StringValidator;
-import org.coding.puzzle.processor.string.rules.ParenthesesParseRule;
+import org.coding.puzzle.processor.string.rules.SquareBracketParseRule;
 
 /**
  * The Part 1 of the coding puzzle processes the input lines from both cmd-line
@@ -77,7 +78,40 @@ public class Part1 {
             }
         }
 
-        validator = new StringValidator(new ParenthesesParseRule());
+        validator = new StringValidator(getBeginRule());
+    }
+
+    protected ParseRule getBeginRule() {
+        return new SquareBracketParseRule() {
+            char endChar;
+
+            @Override
+            public char getRuleEndChar() {
+                return endChar;
+            }
+
+            @Override
+            public char getRuleStartChar() {
+                char startChar = getParseContext().peekChar();
+                endChar = 0;
+
+                switch (startChar) {
+                    case '{':
+                        endChar = '}';
+                        break;
+                    case '[':
+                        endChar = ']';
+                        break;
+                    case '(':
+                        endChar = ')';
+                        break;
+                    default:
+                        return 0;
+                }
+
+                return startChar;
+            }
+        };
     }
 
     public void execute() {

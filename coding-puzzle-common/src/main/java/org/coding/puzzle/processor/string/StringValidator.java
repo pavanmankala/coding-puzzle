@@ -91,7 +91,7 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
         // loop until the context is entirely chewed or till one of the
         // rules fails
         while (ctx.hasNextChar()) {
-            state = ctx.nextChar() == beginRule.getRuleStartChar() ? ParseResult.VALID : ParseResult.INVALID;
+            state = beginRule.getRuleStartChar() == ctx.nextChar() ? ParseResult.VALID : ParseResult.INVALID;
 
             // if the string begin char is not conforming to beginRule
             // return FAIL

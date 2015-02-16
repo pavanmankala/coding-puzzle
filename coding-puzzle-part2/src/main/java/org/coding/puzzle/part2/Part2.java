@@ -16,7 +16,6 @@ import org.coding.puzzle.Result;
 import org.coding.puzzle.Result.BooleanResult;
 import org.coding.puzzle.part1.Part1;
 import org.coding.puzzle.processor.string.StringValidator;
-import org.coding.puzzle.processor.string.rules.ParenthesesParseRule;
 
 /**
  * The Part2 extends Part1 in a sense that it add multi-threading nature for
@@ -138,7 +137,7 @@ public class Part2 extends Part1 {
         service.submit(execQueues[0]);
 
         for (int i = 1; i < execQueues.length; i++) {
-            execQueues[i] = new JobQueue<>(new StringValidator(new ParenthesesParseRule()), resultQueue,
+            execQueues[i] = new JobQueue<>(new StringValidator(getBeginRule()), resultQueue,
                     reqShutdownLatch);
             service.submit(execQueues[i]);
         }
