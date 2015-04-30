@@ -292,9 +292,12 @@ class JobQueue<PK, I, RV, R extends Result<RV>, P extends Processor<I, RV, R>> i
 
     public void processReq(Pair<PK, I> request) {
         // process request
-        R result = processor.process(request.getValue());
-
-        // add result to resultQ
-        resultQ.offer(new Pair<Pair<PK, I>, R>(request, result));
+        try {
+            R result = processor.process(request.getValue());
+            // add result to resultQ
+            resultQ.offer(new Pair<Pair<PK, I>, R>(request, result));
+        } catch(RuntimeException e) {
+            e.printStackTrace();
+        }
     }
 }

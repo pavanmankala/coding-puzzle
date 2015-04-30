@@ -95,7 +95,7 @@ public class StringValidator implements Processor<String, Boolean, BooleanResult
 
             // if the string begin char is not conforming to beginRule
             // return FAIL
-            if (state == ParseResult.INVALID) {
+            if (state == ParseResult.INVALID || !ctx.hasNextChar()) {
                 return FAIL;
             }
 
